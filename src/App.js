@@ -1,25 +1,38 @@
 import React, { useEffect, useState } from "react";
+import "./App.css"
 function App() {
   const [data, setData] = useState([]);
-  const [count, setcount] = useState(0);
-  const [search, setsearch] = useState("smartphones")
-  const [hover, sethover] = useState(false)
+  const [cat, setcat] = useState([])
+  const [count, setcount] = useState(1);
+  const [search, setsearch] = useState("All")
+  const [btn, setbtn] = useState(true)
   useEffect(() => {
-    fetch(`https://dummyjson.com/products/category/${search}?skip=${(count)*1}&limit=4`)
-      .then((res) => {
+      fetch(`https://dummyjson.com/products`).then((res)=>{
         return res.json();
-      })
-      .then((data) => {
+      }).then((data)=>{
         setData(data.products);
+      })
+      },[]);
+  useEffect(()=>{
+     if( search === "All"){
+      setbtn(true)
+      let arr = data.filter((item, i) => {
+        return i <= 9 * count && i >= 9 * (count - 1);
       });
-  }, [count,search]);
+      setcat(arr)
+     }else{
+      setbtn(false)
+     let arr = data.filter((item)=> item.category === search);
+      setcat(arr)
+     }
+  },[search,data,count])
   const Counhandlerprev=()=>{
-    if(count > 0){
+    if(count > 1){
       setcount(count - 1)
     }
   }
   const Counthandlernext=()=>{
-    if(count < 2){
+    if(count < 3){
       setcount(count + 1)
     }
   }
@@ -28,41 +41,36 @@ function App() {
     <div className="data-container">
       <div style={{"textAlign":"center",margin:"20px"}}>
         <select onChange={(e)=>setsearch(e.target.value)}>
-          <option selected>smartphones</option>
-          <option>laptops</option>
-          <option>fragrances</option>
-          <option>skincare</option>
-          <option>groceries</option>
-          <option>home-decoration</option>
-          <option>furniture</option>
-          <option>tops</option>
-          <option>womens-dresses</option>
-          <option>womens-shoes</option>
-          <option>mens-shirts</option>
-          <option>mens-shoes</option>
-          <option>mens-watches</option>
-          <option>womens-watches</option>
-          <option>womens-bags</option>
-          <option>womens-jewellery</option>
-          <option>sunglasses</option>
-          <option>automotive</option>
-          <option>motorcycle</option>
-          <option>lighting</option>
+          <option value="All">All</option>
+          <option value="smartphones">smartphones</option>
+          <option value="laptops">laptops</option>
+          <option value="fragrances">fragrances</option>
+          <option value="skincare">skincare</option>
+          <option value="groceries">groceries</option>
+          <option value="home-decoration">home-decoration</option>
         </select>
       </div>
-      <div style={{display:"flex"}}>
-        {data.map((item, i) => {
+      <div style={{display:"flex",flexDirection:"row",flexWrap:"wrap",boxSizing:"border-box",padding:"20px",justifyContent:"space-around"}}>
+        {cat.map((item, i) => {
           return (
-            <span key={i} style={{"height":"300px","width":"300px","border":"2px solid black",margin:"10px auto 0",justifyContent:"space-around",display:"flex",background:"#cccc",textAlign:"center",flexDirection:"row"}}>
-              {hover?<span onClick={()=>{sethover(false)}}><img src={item.thumbnail} alt="thumbnails" style={{"height":"150px","width":"150px",margin:"20px"}}/><span>{item.description}</span></span>:
-              <img src={item.thumbnail} alt="thumbnails" style={{"height":"250px","width":"250px",margin:"20px"}} onClick={()=>{sethover(true)}}/>}
-            </span>  
+            <div className="display-image" key={i}>
+                <div className="divimg">
+                <img src={item.thumbnail} alt="thumbnails" style={{"height":"200px","width":"200px",margin:"20px"}}/>
+                </div>
+                <div className="description">
+                <img src={item.thumbnail} alt="thumbnails" style={{"height":"100px","width":"100px",margin:"10px"}}/>
+                <span>description:{item.description}</span>
+                </div>
+            </div>
           );
         })}
       </div>
+      {
+      btn?
       <div style={{"textAlign":"center",margin:"50px"}}>
-      <button onClick={Counhandlerprev}>prev</button><span>{count+1}</span><button onClick={Counthandlernext}>next</button>
-      </div>
+      <button onClick={Counhandlerprev}>prev</button><span>{count}</span><button onClick={Counthandlernext}>next</button>
+      </div>:""
+      }
     </div>
   );
 }
